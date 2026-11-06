@@ -4,7 +4,7 @@ Software developer. Android (Flutter) and web applications. Based in Kampar, Ria
 
 Since 2022 I have built operational software for small and mid-sized businesses: multi-outlet point of sale, school and foundation management, and web admin panels, under the studio name Filodev. The systems usually need to keep working on unreliable connections, enforce per-role access, and be handed over with enough documentation for someone else to run them.
 
-Open to remote work (UTC+7). Best fit: Flutter app development, lightweight backends on Firebase, Supabase or Cloudflare, and operational systems for small and mid-sized businesses.
+Open to remote work (UTC+7). Working language: Indonesian; written communication preferred. Best fit: Flutter app development, lightweight backends on Firebase, Supabase or Cloudflare, and operational systems for small and mid-sized businesses.
 
 ## Selected work
 
@@ -35,5 +35,7 @@ Project pages are written in Indonesian. Code excerpts from each project are in 
 
 ## Contact
 
+- Email: filodev0606@gmail.com
+- WhatsApp: [+62 853-6361-5165](https://wa.me/6285363615165)
 - LinkedIn: https://www.linkedin.com/in/muhammad-ilham-rantri-293769448/
 - Site: https://filodev-web.web.app

@@ -4,7 +4,7 @@ Software developer. Aplikasi Android (Flutter) dan web. Kampar, Riau (UTC+7).
 
 Sejak 2022 saya membangun perangkat lunak operasional untuk usaha kecil dan menengah: kasir multi-outlet, sistem sekolah dan yayasan, serta panel admin web. Studio saya Filodev. Sistem yang saya kerjakan umumnya harus tetap berjalan tanpa koneksi stabil, punya batas akses per peran, dan bisa diserahkan ke orang lain dengan dokumentasi yang cukup.
 
-Terbuka untuk kerja remote (zona waktu UTC+7). Paling sesuai untuk pengembangan aplikasi Flutter, backend ringan di Firebase, Supabase, atau Cloudflare, dan sistem operasional untuk usaha kecil dan menengah.
+Terbuka untuk kerja remote (zona waktu UTC+7). Bahasa kerja: Indonesia. Paling sesuai untuk pengembangan aplikasi Flutter, backend ringan di Firebase, Supabase, atau Cloudflare, dan sistem operasional untuk usaha kecil dan menengah.
 
 ## Karya terpilih
 
@@ -46,6 +46,8 @@ Cuplikan kode dari tiap proyek ada di [code/](code).
 
 ## Kontak
 
+- Surel: filodev0606@gmail.com
+- WhatsApp: [+62 853-6361-5165](https://wa.me/6285363615165)
 - LinkedIn: https://www.linkedin.com/in/muhammad-ilham-rantri-293769448/
 - Situs: https://filodev-web.web.app
 
