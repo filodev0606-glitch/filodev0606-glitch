@@ -19,8 +19,6 @@ Kasir untuk UMKM dengan dukungan banyak outlet.
 - Stok: stok bahan berkurang otomatis tiap penjualan, dengan peringatan stok menipis.
 - Asisten Filo: asisten AI yang menjalankan perintah seperti menambah menu, menghitung biaya per porsi, dan menampilkan produk dengan laba tertinggi.
 
-Cara kerja offline-first dan isolasi data per tenant memakai pola yang sama dengan [FiloKasir dan FiloLaundry](filokasir-filolaundry.md).
-
 ## Harapan Umat: Jadwal Sholat
 
 Aplikasi jadwal sholat dan murottal Al-Qur'an yang bisa dipakai tanpa internet.
