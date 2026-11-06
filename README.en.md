@@ -21,7 +21,15 @@ Open to remote work (UTC+7). Working language: Indonesian; written communication
 | [Online Course Platform](projects/platform-kelas-online.md) | Courses, live class, quizzes, certificates, 3 languages | Astro, Workers, D1, WebRTC |
 | [Web Examples and Templates](projects/contoh-web-dan-template.md) | Foundation template, 3D showcase, landing pages | Astro, Next.js, Three.js |
 
-On Google Play: AI Kasir and Takmuru Quran.
+## Apps on Google Play
+
+| App | Link |
+| :-- | :-- |
+| AI Kasir (POS for small businesses) | [Google Play](https://play.google.com/store/apps/details?id=com.filodev.aikasir) |
+| Harapan Umat: Jadwal Sholat (prayer times and Quran audio, offline) | [Google Play](https://play.google.com/store/apps/details?id=com.filodev.TakmuruQuran) |
+| Peluang Uang (paid tasks) | [Google Play](https://play.google.com/store/apps/details?id=com.peluanguang.app), [web](https://peluanguang.app/) |
+
+Descriptions are in [projects/aplikasi-google-play.md](projects/aplikasi-google-play.md), written in Indonesian.
 
 Project pages are written in Indonesian. Code excerpts from each project are in [code/](code).
 

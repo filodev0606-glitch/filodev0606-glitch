@@ -21,7 +21,15 @@ Terbuka untuk kerja remote (zona waktu UTC+7). Bahasa kerja: Indonesia. Paling s
 | [Platform Kelas Online](projects/platform-kelas-online.md) | Kelas, live, kuis, sertifikat, tiga bahasa | Astro, Workers, D1, WebRTC |
 | [Contoh Web dan Template](projects/contoh-web-dan-template.md) | Template yayasan, showcase 3D, landing page | Astro, Next.js, Three.js |
 
-Di Google Play: AI Kasir dan Takmuru Quran.
+## Aplikasi di Google Play
+
+| Aplikasi | Tautan |
+| :-- | :-- |
+| AI Kasir | [Google Play](https://play.google.com/store/apps/details?id=com.filodev.aikasir) |
+| Harapan Umat: Jadwal Sholat | [Google Play](https://play.google.com/store/apps/details?id=com.filodev.TakmuruQuran) |
+| Peluang Uang | [Google Play](https://play.google.com/store/apps/details?id=com.peluanguang.app), [web](https://peluanguang.app/) |
+
+Penjelasan tiap aplikasi: [projects/aplikasi-google-play.md](projects/aplikasi-google-play.md).
 
 Cuplikan kode dari tiap proyek ada di [code/](code).
 
