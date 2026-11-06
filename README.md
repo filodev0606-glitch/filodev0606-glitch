@@ -4,11 +4,13 @@ Software developer. Aplikasi Android (Flutter) dan web. Kampar, Riau (UTC+7).
 
 Sejak 2022 saya membangun perangkat lunak operasional untuk usaha kecil dan menengah: kasir multi-outlet, sistem sekolah dan yayasan, serta panel admin web. Studio saya Filodev. Sistem yang saya kerjakan umumnya harus tetap berjalan tanpa koneksi stabil, punya batas akses per peran, dan bisa diserahkan ke orang lain dengan dokumentasi yang cukup.
 
+Terbuka untuk kerja remote (zona waktu UTC+7). Paling sesuai untuk pengembangan aplikasi Flutter, backend ringan di Firebase, Supabase, atau Cloudflare, dan sistem operasional untuk usaha kecil dan menengah.
+
 ## Karya terpilih
 
 | Proyek | Ranah | Stack |
 | :-- | :-- | :-- |
-| [FiloKasir dan FiloLaundry](projects/filokasir-filolaundry.md) | SaaS kasir berlangganan, Android dan Windows | Flutter, Firebase, Play Billing, SQLite |
+| [FiloKasir dan FiloLaundry](projects/filokasir-filolaundry.md) | SaaS kasir berlangganan, Android dan Windows | Flutter, Firebase, SQLite, QRIS |
 | [Palmera POS](projects/palmera-pos.md) | Kasir multi-outlet | Flutter, Riverpod, Firestore, SQLite |
 | [Sistem Yayasan dan Sekolah](projects/sistem-yayasan-sekolah.md) | Akademik, keuangan, PPDB | Next.js 16, Supabase, Tailwind |
 | [Filodev Control Center](projects/filodev-control-center.md) | Panel admin dan buku tagihan | Cloudflare Workers, D1 |
@@ -16,8 +18,12 @@ Sejak 2022 saya membangun perangkat lunak operasional untuk usaha kecil dan mene
 | [Registrasi Jamaah Umroh](projects/registrasi-umroh.md) | Pendaftaran dan dashboard cabang | React, Vite, Firebase |
 | [Jam Kopi Kasir](projects/jam-kopi-kasir.md) | Kasir roastery | Flutter, Cubit, Firestore |
 | [Situs Filodev](projects/situs-filodev.md) | Situs studio dua bahasa | Next.js 16, Firebase Hosting |
+| [Platform Kelas Online](projects/platform-kelas-online.md) | Kelas, live, kuis, sertifikat, tiga bahasa | Astro, Workers, D1, WebRTC |
+| [Contoh Web dan Template](projects/contoh-web-dan-template.md) | Template yayasan, showcase 3D, landing page | Astro, Next.js, Three.js |
 
 Di Google Play: AI Kasir dan Takmuru Quran.
+
+Cuplikan kode dari tiap proyek ada di [code/](code).
 
 ## Stack
 
@@ -28,7 +34,7 @@ Di Google Play: AI Kasir dan Takmuru Quran.
 | Backend | Cloudflare Workers, D1, R2, Firebase (Firestore, Auth, Functions), Supabase |
 | Data | Drizzle ORM, Zod, aturan keamanan Firestore |
 | Uji | Vitest, Playwright, flutter test |
-| Pembayaran | Google Play Billing |
+| Pembayaran | Verifikasi webhook HMAC, QRIS dengan persetujuan admin, kode unik transfer |
 
 ## Pola yang berulang di proyek saya
 
@@ -40,6 +46,7 @@ Di Google Play: AI Kasir dan Takmuru Quran.
 
 ## Kontak
 
+- LinkedIn: https://www.linkedin.com/in/muhammad-ilham-rantri-293769448/
 - Situs: https://filodev-web.web.app
 
 English summary: [README.en.md](README.en.md)

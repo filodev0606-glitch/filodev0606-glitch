@@ -94,3 +94,7 @@ Astro 5, Cloudflare Workers, D1, R2, Drizzle ORM, Zod, Turnstile, Resend
 ## Pengujian
 
 `npm run verify` menjalankan pengecekan tipe, ESLint, dan 31 tes unit dan integrasi dengan D1. Tes end-to-end Playwright memakai profil iPhone dan Pixel.
+
+## Cuplikan kode
+
+[code/web-donasi-yayasan](../code/web-donasi-yayasan)

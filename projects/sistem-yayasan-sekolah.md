@@ -89,3 +89,7 @@ Next.js 16, React 19, TypeScript, Supabase (Postgres, Auth, Storage), Tailwind C
 ## Status
 
 Modul utama berjalan di database produksi. Antarmuka sedang disusun ulang bertahap berdasarkan panduan desain per peran: token desain, ikon konsisten, navigasi bawah untuk mobile, dan sidebar untuk desktop.
+
+## Cuplikan kode
+
+[code/sistem-yayasan-sekolah](../code/sistem-yayasan-sekolah)

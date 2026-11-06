@@ -1,0 +1,196 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+    function isAdmin() {
+      return signedIn() && (
+        request.auth.token.role == 'admin'
+        || request.auth.token.email == 'admin@example.com'
+      );
+    }
+    function tenantOwner(tenantId) {
+      return signedIn()
+        && get(/databases/$(database)/documents/tenants/$(tenantId)).data.ownerUid == request.auth.uid;
+    }
+    function tenantCashier(tenantId) {
+      return signedIn()
+        && request.auth.token.role == 'cashier'
+        && request.auth.token.tenantId == tenantId;
+    }
+    function tenantMember(tenantId) {
+      return tenantOwner(tenantId) || tenantCashier(tenantId);
+    }
+    function tenantSensitiveKeys() {
+      return [
+        'subscriptionStatus', 'expiredAt', 'trialEndsAt', 'graceEndsAt',
+        'customBaseIdr', 'customExtraOutletIdr', 'customPricingEffectiveAt',
+        'customPricingNote', 'complimentaryUntil', 'softDeletedAt',
+        'pipelineStage', 'churnReason', 'salesProtectedUntil',
+        'featureFlags', 'isSandbox',
+        'playPurchaseToken', 'playOrderId', 'playPackageName', 'productId',
+        'forceSessionRevokeAt', 'lockReason', 'statusBeforeSuspend'
+      ];
+    }
+
+    match /tenants/{tenantId} {
+      allow read: if isAdmin()
+        || (signedIn() && resource.data.ownerUid == request.auth.uid)
+        || tenantCashier(tenantId);
+      // Anti-cheat: tenant docs only via Cloud Functions Admin SDK (ensureOwnerTenant).
+      allow create: if false;
+      allow update: if isAdmin()
+        || (signedIn() && resource.data.ownerUid == request.auth.uid
+            && !request.resource.data.diff(resource.data).affectedKeys()
+                .hasAny(tenantSensitiveKeys())
+            && (
+              !request.resource.data.diff(resource.data).affectedKeys().hasAny(['businessCode'])
+              || resource.data.businessCode == null
+            ));
+      allow delete: if isAdmin();
+    }
+
+    match /branches/{id} {
+      allow read: if isAdmin() || tenantMember(resource.data.tenantId)
+        || (request.method == 'create' && tenantOwner(request.resource.data.tenantId));
+      allow write: if isAdmin() || tenantOwner(resource.data.tenantId)
+        || (request.method == 'create' && tenantOwner(request.resource.data.tenantId));
+      allow delete: if isAdmin() || tenantOwner(resource.data.tenantId);
+    }
+
+    match /staff/{id} {
+      allow read: if isAdmin() || tenantMember(resource.data.tenantId);
+      allow write: if isAdmin() || tenantOwner(resource.data.tenantId)
+        || (request.method == 'create' && tenantOwner(request.resource.data.tenantId));
+      allow delete: if isAdmin() || tenantOwner(resource.data.tenantId);
+    }
+
+    match /orders/{id} {
+      allow read, write: if isAdmin() || tenantMember(resource.data.tenantId)
+        || (request.method == 'create' && tenantMember(request.resource.data.tenantId));
+    }
+
+    match /expenses/{id} {
+      allow read, write: if isAdmin() || tenantMember(resource.data.tenantId)
+        || (request.method == 'create' && tenantMember(request.resource.data.tenantId));
+    }
+
+    match /invoices/{id} {
+      allow read: if isAdmin() || tenantOwner(resource.data.tenantId);
+      allow create: if isAdmin() || tenantOwner(request.resource.data.tenantId);
+      allow update, delete: if isAdmin();
+    }
+
+    match /sales_refs/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /app_config/{docId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+
+      match /{sub=**} {
+        allow read: if signedIn();
+        allow write: if isAdmin();
+      }
+    }
+
+    match /pricing_history/{id} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    match /admin_audit/{id} {
+      allow read: if isAdmin();
+      allow create: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    match /tenant_notes/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    match /admin_sessions/{id} {
+      allow read, write: if isAdmin();
+    }
+
+    match /conversations/{conversationId} {
+      allow read: if isAdmin()
+        || (signedIn() && resource.data.tenantId != null
+            && tenantOwner(resource.data.tenantId));
+      allow create, update: if isAdmin()
+        || (signedIn() && request.resource.data.tenantId != null
+            && tenantOwner(request.resource.data.tenantId));
+
+      match /messages/{messageId} {
+        allow read: if isAdmin()
+          || (signedIn() && get(/databases/$(database)/documents/conversations/$(conversationId)).data.tenantId != null
+              && tenantOwner(get(/databases/$(database)/documents/conversations/$(conversationId)).data.tenantId));
+        allow create: if isAdmin()
+          || (signedIn()
+              && request.resource.data.tenantId != null
+              && tenantOwner(request.resource.data.tenantId)
+              && request.resource.data.senderRole == 'owner');
+      }
+    }
+
+    match /admin_broadcasts/{id} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    match /banner_events/{id} {
+      allow create: if signedIn();
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+
+    // FiloKasir operational collections (flat, tenantId on docs)
+    match /kasir_outlets/{id} {
+      allow read, write: if isAdmin() || tenantMember(resource.data.tenantId)
+        || (request.method == 'create' && tenantOwner(request.resource.data.tenantId));
+    }
+    match /kasir_orders/{id} {
+      allow read, write: if isAdmin() || tenantMember(resource.data.tenantId)
+        || (request.method == 'create' && tenantMember(request.resource.data.tenantId));
+    }
+    match /kasir_staff/{id} {
+      allow read: if isAdmin() || tenantMember(resource.data.tenantId);
+      allow write: if isAdmin() || tenantOwner(resource.data.tenantId)
+        || (request.method == 'create' && tenantOwner(request.resource.data.tenantId));
+    }
+    match /kasir_shifts/{id} {
+      allow read, write: if isAdmin() || tenantMember(resource.data.tenantId)
+        || (request.method == 'create' && tenantMember(request.resource.data.tenantId));
+    }
+    match /kasir_menu/{id} {
+      allow read: if isAdmin() || tenantMember(resource.data.tenantId);
+      allow write: if isAdmin() || tenantOwner(resource.data.tenantId);
+    }
+
+    // FiloKasir nested org path: organizations/{tenantId}/...
+    match /organizations/{tenantId} {
+      allow read: if isAdmin() || tenantOwner(tenantId) || tenantCashier(tenantId);
+      allow write: if isAdmin() || tenantOwner(tenantId);
+
+      match /{document=**} {
+        allow read: if isAdmin() || tenantOwner(tenantId) || tenantCashier(tenantId);
+        allow write: if isAdmin() || tenantOwner(tenantId) || tenantCashier(tenantId);
+      }
+    }
+    match /owner_slots/{id} {
+      allow read: if isAdmin();
+      allow write: if false; // only Cloud Functions
+    }
+
+    match /subscription_claims/{id} {
+      allow read: if isAdmin()
+        || (signedIn() && resource.data.ownerUid == request.auth.uid);
+      allow create: if false; // callable only
+      allow update, delete: if isAdmin();
+    }
+  }
+}

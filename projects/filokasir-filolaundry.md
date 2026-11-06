@@ -4,7 +4,7 @@ SaaS kasir untuk laundry dan toko. Dua aplikasi Android dari satu kode dan satu 
 
 ## Konteks
 
-Pemilik usaha kecil butuh kasir yang tetap bisa dipakai saat internet mati, mendukung beberapa cabang, dan bisa ditagih bulanan tanpa transfer manual.
+Pemilik usaha kecil butuh kasir yang tetap bisa dipakai saat internet mati, mendukung beberapa cabang, dan punya cara membayar langganan yang bisa diaktifkan dari satu panel admin.
 
 ## Arsitektur
 
@@ -14,10 +14,9 @@ flowchart LR
         A["Owner dan kasir"] --> B[("SQLite lokal")]
     end
     B -->|"antrean sinkron"| C[("Firestore")]
-    A -->|"langganan"| D["Google Play Billing"]
-    D -->|"verifikasi dan notifikasi RTDN"| E["Cloud Functions"]
+    A -->|"klaim bayar QRIS"| C
+    F["Admin Windows"] -->|"setujui klaim"| E["Cloud Functions"]
     E --> C
-    F["Admin Windows"] --> C
 ```
 
 ## Cara kerja
@@ -38,34 +37,38 @@ sequenceDiagram
     Note over Q,F: Konflik: last-write-wins berdasarkan updatedAt
 ```
 
-### 2. Langganan bulanan
+### 2. Langganan lewat QRIS dan persetujuan admin
 
 ```mermaid
 sequenceDiagram
     participant O as Owner
     participant A as Aplikasi
-    participant P as Google Play
-    participant C as Cloud Functions
     participant F as Firestore
-    O->>A: Berlangganan
-    A->>P: Beli (SKU per produk)
-    P-->>A: Token pembelian
-    A->>C: verifyPlayPurchase
-    C->>P: Validasi token
+    participant M as Admin Windows
+    participant C as Cloud Functions
+    O->>A: Bayar langganan lewat QRIS
+    A->>C: Kirim klaim langganan (menunggu)
+    C->>F: Simpan klaim
+    M->>F: Periksa klaim
+    M->>C: Setujui klaim
     C->>F: Status aktif dan tanggal berakhir
-    P-->>C: RTDN (perpanjang atau batal)
-    C->>F: Perbarui status
 ```
+
+Klien tidak menulis klaim maupun status langganan secara langsung. Aturan Firestore menutup keduanya, sehingga hanya fungsi di server yang mengubahnya.
+
+Kode Google Play Billing (verifikasi pembelian dan notifikasi RTDN) sudah ditulis, tetapi dipensiunkan dan tidak aktif. Fungsinya dijawab dengan HTTP 410, dan yang berjalan sekarang adalah QRIS dengan persetujuan admin.
 
 ### 3. Siklus status tenant
 
 ```mermaid
 stateDiagram-v2
     [*] --> trial: Daftar lewat Google (30 hari)
-    trial --> active: Bayar
+    trial --> active: Klaim disetujui
     trial --> expired: Habis tanpa bayar
-    active --> expired: Masa berlaku habis
-    expired --> active: Bayar
+    active --> grace: Masa berlaku habis
+    grace --> active: Klaim disetujui
+    grace --> expired: Masa tenggang habis
+    expired --> active: Klaim disetujui
     active --> suspended: Admin menangguhkan
     suspended --> active: Admin mengaktifkan
 ```
@@ -78,7 +81,9 @@ Saat `expired`, aplikasi tidak bisa membuat order baru.
 
 **Dua aplikasi dari satu kode.** Flutter flavor menghasilkan FiloLaundry dan FiloKasir dari satu basis kode. Perbaikan di satu produk langsung berlaku di yang lain.
 
-**Langganan diverifikasi di server.** Pembelian dari Play dicek di Cloud Functions, dan perpanjangan mengikuti notifikasi real-time dari Play. Status langganan tidak dipercaya dari klien.
+**Status langganan hanya diubah server.** Field langganan dilindungi aturan Firestore dan hanya Cloud Functions yang boleh menulisnya. Klien tidak dipercaya untuk status ini.
+
+**Masa tenggang.** Setelah masa berlaku habis ada beberapa hari `grace` sebelum `expired`, supaya pelanggan tidak terkunci mendadak.
 
 **Gerbang langganan memakai tanggal tersimpan.** Aplikasi tidak bisa dibuka kembali hanya dengan mematikan internet.
 
@@ -94,8 +99,12 @@ Saat `expired`, aplikasi tidak bisa membuat order baru.
 
 ## Stack
 
-Flutter, Dart, SQLite, Firebase Auth, Firestore, Cloud Functions (Node.js), Google Play Billing
+Flutter, Dart, SQLite, Firebase Auth, Firestore, Cloud Functions (Node.js)
 
 ## Status
 
 PRD, rencana, dan panduan setup tersedia di repositori proyek (privat).
+
+## Cuplikan kode
+
+[code/filokasir-filolaundry](../code/filokasir-filolaundry)

@@ -65,3 +65,7 @@ sequenceDiagram
 ## Stack
 
 Flutter, Cubit, Firestore, Firebase Auth, Firebase Hosting
+
+## Cuplikan kode
+
+[code/jam-kopi-kasir](../code/jam-kopi-kasir)

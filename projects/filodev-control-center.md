@@ -83,3 +83,7 @@ Cloudflare Workers, D1, Google Identity Services
 ## Pengujian
 
 53 tes otomatis: login, sesi, CSRF, proxy daftar putih, audit, buku tagihan, logika tanggal, format kwitansi. Mode lokal dengan data palsu untuk uji manual.
+
+## Cuplikan kode
+
+[code/filodev-control-center](../code/filodev-control-center)

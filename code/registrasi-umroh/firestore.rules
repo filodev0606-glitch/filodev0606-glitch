@@ -1,0 +1,226 @@
+rules_version = '2';
+
+// ============================================================================
+// Jamaah Registration Platform - Firestore Security Rules
+//
+// Mode saat ini: SPARK (tanpa Cloud Functions).
+// Karena custom claims hanya bisa dipasang lewat Admin SDK, peran pengguna
+// dibaca langsung dari koleksi admin_pusat / admin_cabang.
+//
+// Ringkasan akses:
+//   - Publik (belum login): hanya boleh MEMBUAT satu dokumen pendaftaran baru
+//     dengan bentuk data yang ketat, dan hanya boleh MEMBACA katalog paket,
+//     jadwal, serta pengaturan publik. Tidak bisa membaca data jamaah manapun.
+//   - admin_cabang: baca/tulis jamaah milik cabangnya saja.
+//   - owner_pusat: baca semua, tulis data sistem (paket, cabang, admin, template).
+// ============================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------------------- helper peran ----------------------
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email != null;
+    }
+    function emailSaya() {
+      return string(request.auth.token.email).lower();
+    }
+    function pathPusat() {
+      return /databases/$(database)/documents/admin_pusat/$(emailSaya());
+    }
+    function pathCabang() {
+      return /databases/$(database)/documents/admin_cabang/$(emailSaya());
+    }
+    function isOwner() {
+      return isSignedIn()
+        && exists(pathPusat())
+        && get(pathPusat()).data.status == 'Active';
+    }
+    function isAdminCabang() {
+      return isSignedIn()
+        && exists(pathCabang())
+        && get(pathCabang()).data.status == 'Active';
+    }
+    function isStaff() {
+      return isOwner() || isAdminCabang();
+    }
+    function myCabang() {
+      return get(pathCabang()).data.cabang_id;
+    }
+
+    // ---------------------- helper validasi ----------------------
+    function teks(nilai, maks) {
+      return nilai is string && nilai.size() > 0 && nilai.size() <= maks;
+    }
+    function angkaWajar(nilai) {
+      return nilai is number && nilai >= 0 && nilai <= 1000000000;
+    }
+
+    // Bentuk data pendaftaran yang boleh dikirim pengunjung publik.
+    function pendaftaranSah() {
+      let d = request.resource.data;
+      return d.keys().hasAll([
+              'nama', 'telepon', 'email', 'alamat', 'ktp_number',
+              'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin',
+              'paket_id', 'paket_nama', 'jadwal_id', 'tanggal_keberangkatan',
+              'total_harga', 'dp_nominal', 'metode_bayar', 'tanggal_pembayaran',
+              'status', 'cabang_id', 'referensi_id', 'tanggal_registrasi',
+            ])
+            && d.keys().hasOnly([
+              'nama', 'telepon', 'email', 'alamat', 'ktp_number', 'ktp_number_masked',
+              'tempat_lahir', 'tanggal_lahir', 'jenis_kelamin', 'kesehatan_notes',
+              'paket_id', 'paket_nama', 'jadwal_id', 'tanggal_keberangkatan',
+              'lokasi_pemondokan', 'layanan_tambahan',
+              'total_harga', 'dp_nominal', 'metode_bayar', 'tanggal_pembayaran',
+              'bukti_pembayaran', 'status', 'cabang_id', 'cabang_nama',
+              'referensi_id', 'tanggal_registrasi', 'updated_at', 'deadline_dp',
+              'catatan_admin', 'sumber', 'dibaca_admin',
+              'data_tambahan', 'persetujuan', 'didaftarkan_oleh',
+            ])
+            && teks(d.nama, 100)
+            && d.nama.size() >= 5
+            && teks(d.telepon, 20)
+            && teks(d.email, 120)
+            && teks(d.alamat, 300)
+            && teks(d.ktp_number, 40)
+            && teks(d.tempat_lahir, 60)
+            && teks(d.jenis_kelamin, 20)
+            && teks(d.paket_id, 60)
+            && teks(d.paket_nama, 120)
+            && teks(d.jadwal_id, 60)
+            && teks(d.cabang_id, 60)
+            && teks(d.referensi_id, 40)
+            && teks(d.metode_bayar, 30)
+            && angkaWajar(d.total_harga) && d.total_harga > 0
+            && angkaWajar(d.dp_nominal) && d.dp_nominal <= d.total_harga
+            && d.tanggal_lahir is timestamp
+            && d.tanggal_keberangkatan is timestamp
+            && d.tanggal_pembayaran is timestamp
+            && d.tanggal_registrasi == request.time
+            // Pendaftaran baru selalu berstatus Pending. Status lain hanya boleh
+            // diubah oleh admin setelah pembayaran diperiksa.
+            && d.status == 'Pending'
+            && (!('persetujuan' in d) || d.persetujuan == 'Menunggu')
+            && (!('kesehatan_notes' in d) || d.kesehatan_notes.size() <= 500)
+            && (!('catatan_admin' in d) || d.catatan_admin.size() == 0)
+            // Cabang tujuan harus benar-benar ada dan berstatus aktif.
+            && exists(/databases/$(database)/documents/cabang/$(d.cabang_id))
+            && get(/databases/$(database)/documents/cabang/$(d.cabang_id)).data.status == 'Active';
+    }
+
+    function tetapMilikCabangSaya() {
+      return resource.data.cabang_id == myCabang()
+        && request.resource.data.cabang_id == myCabang();
+    }
+
+    // Field yang tidak boleh diubah admin cabang lewat aplikasi.
+    function fieldKunciTidakBerubah() {
+      return !request.resource.data.diff(resource.data).affectedKeys()
+              .hasAny(['referensi_id', 'cabang_id', 'tanggal_registrasi', 'ktp_number',
+                       'persetujuan', 'disetujui_oleh', 'disetujui_pada'].toSet());
+    }
+
+    // ---------------------- paket (katalog publik) ----------------------
+    match /paket/{paketId} {
+      allow read: if true;
+      allow create, update: if isOwner();
+      allow delete: if false;              // arsip saja (field deleted = true)
+
+      match /jadwal/{jadwalId} {
+        allow read: if true;
+        allow create, update: if isOwner();
+        // Pendaftar publik hanya boleh menaikkan penghitung "terdaftar" satu angka.
+        allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['terdaftar'])
+                      && request.resource.data.terdaftar == resource.data.terdaftar + 1
+                      && request.resource.data.terdaftar <= resource.data.kuota;
+        allow delete: if false;
+      }
+    }
+
+    // ---------------------- cabang ----------------------
+    match /cabang/{cabangId} {
+      allow read: if isStaff();
+      allow create, update: if isOwner();
+      allow delete: if false;
+    }
+
+    // ---------------------- daftar akses admin ----------------------
+    match /admin_cabang/{email} {
+      // Pengguna boleh membaca dokumen miliknya sendiri saat login,
+      // agar aplikasi tahu dia admin cabang mana.
+      allow read: if isSignedIn() && (email == emailSaya() || isOwner());
+      allow write: if isOwner();
+    }
+    match /admin_pusat/{email} {
+      allow read: if isSignedIn() && (email == emailSaya() || isOwner());
+      allow write: if isOwner();
+    }
+
+    // ---------------------- jamaah ----------------------
+    match /jamaah/{jamaahId} {
+      allow read: if isOwner()
+                  || (isAdminCabang() && resource.data.cabang_id == myCabang());
+
+      // Pendaftaran dari formulir publik (tanpa login) - divalidasi ketat.
+      allow create: if pendaftaranSah()
+                    || isOwner()
+                    || (isAdminCabang() && request.resource.data.cabang_id == myCabang());
+
+      allow update: if isOwner()
+                    || (isAdminCabang() && tetapMilikCabangSaya() && fieldKunciTidakBerubah());
+
+      allow delete: if isOwner();          // admin cabang cukup set status "Batal"
+
+      match /activity_log/{logId} {
+        allow read: if isOwner()
+                    || (isAdminCabang()
+                        && get(/databases/$(database)/documents/jamaah/$(jamaahId)).data.cabang_id == myCabang());
+        allow create: if isStaff();
+        allow update, delete: if false;    // riwayat tidak boleh diubah
+      }
+    }
+
+    // ---------------------- log pesan WhatsApp ----------------------
+    match /message_log/{logId} {
+      allow read: if isStaff();
+      allow create: if isStaff();          // dicatat saat admin mengirim pesan manual
+      allow update, delete: if false;
+    }
+
+    // ---------------------- jejak audit ----------------------
+    match /audit_log/{logId} {
+      allow read: if isOwner();
+      allow create: if isStaff();
+      allow update, delete: if false;
+    }
+
+    // ---------------------- template pesan WhatsApp ----------------------
+    match /wa_template/{templateId} {
+      allow read: if isStaff();
+      allow write: if isOwner();
+    }
+
+    // ---------------------- pengaturan ----------------------
+    // settings/publik berisi nomor rekening, kontak CS, dan daftar cabang
+    // yang perlu tampil di formulir pendaftaran publik.
+    match /settings/publik {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+    // settings/formulir berisi susunan pertanyaan & berkas yang diminta,
+    // sehingga harus terbaca oleh formulir pendaftaran publik.
+    match /settings/formulir {
+      allow read: if true;
+      allow write: if isOwner();
+    }
+    match /settings/{docId} {
+      allow read: if isStaff();
+      allow write: if isOwner();
+    }
+
+    // ---------------------- tolak selain di atas ----------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

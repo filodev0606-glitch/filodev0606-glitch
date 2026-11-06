@@ -74,3 +74,7 @@ Flutter 3, Material 3, Riverpod, go_router, SQLite, Firestore, bcrypt, Melos
 ## Operasional
 
 Skrip build APK (bootstrap, uji, build, salin ke `dist/`), skrip deploy aturan dan indeks, dan checklist UAT per outlet.
+
+## Cuplikan kode
+
+[code/palmera-pos](../code/palmera-pos)

@@ -81,3 +81,7 @@ docs/               panduan admin, pemasangan, keamanan, status
 ## Stack
 
 React, Vite, Tailwind CSS, Firebase (Firestore, Storage, Hosting, Cloud Functions)
+
+## Cuplikan kode
+
+[code/registrasi-umroh](../code/registrasi-umroh)

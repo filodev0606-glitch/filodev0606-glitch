@@ -49,3 +49,7 @@ Halaman `/en` memiliki struktur yang sama.
 ## Stack
 
 Next.js 16, React, TypeScript, sharp, Firebase Hosting
+
+## Cuplikan kode
+
+[code/situs-filodev](../code/situs-filodev)
