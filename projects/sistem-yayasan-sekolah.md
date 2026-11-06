@@ -76,7 +76,7 @@ flowchart LR
 
 ## Keputusan teknis
 
-**Next.js dan Supabase, bukan Laravel dengan VPS.** Repositori referensi memakai Laravel, MySQL, Redis, dan MinIO, yang butuh server menyala terus dengan biaya bulanan dan perawatan sendiri (patch keamanan, backup, uptime). Dengan Vercel dan Supabase, hosting gratis dan tidak ada server yang dijaga. Fondasi yang sudah ada, termasuk fitur khusus seperti input dari foto, tidak perlu ditulis ulang. Repositori Laravel tetap dipakai sebagai daftar acuan modul, lalu diterjemahkan ke stack ini. Pindah ke VPS tetap mungkin saat sudah produksi penuh.
+**Next.js dan Supabase dipilih, bukan Laravel di VPS.** Repositori referensi memakai Laravel, MySQL, Redis, dan MinIO, yang butuh server menyala terus dengan biaya bulanan dan perawatan sendiri (patch keamanan, backup, uptime). Dengan Vercel dan Supabase, hosting gratis dan tidak ada server yang dijaga. Fondasi yang sudah jalan, termasuk input dari foto, tetap dipakai. Repositori Laravel tetap dipakai sebagai daftar acuan modul, lalu diterjemahkan ke stack ini. Pindah ke VPS tetap mungkin saat sudah produksi penuh.
 
 **Orang tua tanpa akun.** Akses lewat tautan bertoken. Tidak ada kata sandi untuk dikelola atau dilupakan, dan setiap tautan hanya membuka satu anak.
 

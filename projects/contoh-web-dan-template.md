@@ -15,7 +15,7 @@ flowchart LR
     V --> D["Deploy"]
 ```
 
-Yang membuatnya bisa dipakai ulang:
+Isi template:
 
 - Satu berkas `TEMPLATE.md` berisi urutan langkah dan daftar berkas yang harus diganti.
 - Nama resource memakai prefix netral yang diganti sekali.
@@ -39,13 +39,9 @@ Cuplikan kode: [code/showcase-3d-filodev](../code/showcase-3d-filodev)
 
 ## Landing Page Rental Mobil
 
-Dua landing page untuk usaha rental mobil di kota yang berbeda. Setiap halaman berupa satu berkas HTML tanpa framework, jadi cepat dimuat di jaringan seluler dan murah dihosting.
+Dua landing page untuk usaha rental mobil di kota yang berbeda. Setiap halaman berupa satu berkas HTML tanpa framework, jadi ringan dan murah dihosting.
 
 - Metadata SEO lengkap dan Open Graph.
 - Data terstruktur JSON-LD tipe `AutoRental` agar usaha muncul rapi di hasil pencarian.
 - Gambar WebP, tombol pesan langsung ke WhatsApp.
 - Versi siap deploy (`versi-online`) berisi `_headers` dan `robots.txt`.
-
-## Template Aplikasi Berikutnya
-
-Pola yang sama dipakai di proyek lain: [Platform Kelas Online](platform-kelas-online.md) mengulang hash sandi, rate limit, dan webhook ber-HMAC dari proyek yayasan, dengan penyesuaian untuk kebutuhan kelas live dan tiga bahasa.

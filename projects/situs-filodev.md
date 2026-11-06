@@ -34,7 +34,7 @@ Halaman `/en` memiliki struktur yang sama.
 
 ## Keputusan desain dan teknis
 
-**Struktur, bukan efek.** Versi awal memakai adegan 3D interaktif. Saya menggantinya dengan satu hero berfoto diam, lalu kartu yang tingginya mengikuti isi. Muat lebih cepat di HP dan lebih mudah dirawat.
+**Hero foto menggantikan adegan 3D.** Versi awal memakai adegan 3D interaktif. Saya ganti dengan satu foto diam dan kartu yang tingginya mengikuti isi. Halaman lebih cepat dimuat di HP dan lebih mudah dirawat.
 
 **Ekspor statis.** Tidak ada form dan tidak ada API route, jadi tidak ada server yang dijaga. Dependensi runtime hanya `next`, `react`, dan `react-dom`.
 

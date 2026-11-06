@@ -61,7 +61,7 @@ scripts/            build APK, deploy
 
 **Perangkat diikat ke outlet.** Saat setup, perangkat dipasangkan ke cabang. Kasir masuk dengan PIN 4 digit unik lalu membuka shift.
 
-**PIN disimpan sebagai hash bcrypt.** Bukan teks biasa, dan bukan hash cepat.
+**PIN disimpan sebagai hash bcrypt.** Bcrypt sengaja lambat dihitung, sehingga PIN sulit ditebak dengan percobaan massal.
 
 **Berjalan di paket gratis.** Backend hanya Firestore dan Auth anonim, tanpa Cloud Functions. Logika yang butuh server ditaruh di aturan database atau di aplikasi. Cloud Functions disiapkan sebagai opsi bila nanti pindah ke paket berbayar.
 
